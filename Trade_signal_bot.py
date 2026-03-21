@@ -9,8 +9,10 @@ import schedule
 import time
 import os
 import tempfile
+import threading
 from pathlib import Path
 from google.cloud import storage
+from flask import Flask, jsonify
 
 # Setup logging with file output
 log_dir = Path('logs')
@@ -40,6 +42,7 @@ MARKET_CLOSE_TIME = datetime.strptime('15:30', '%H:%M').time()
 GCS_BUCKET = os.getenv('GCS_BUCKET', '').strip()
 GCS_OBJECT = os.getenv('GCS_OBJECT', CSV_FILE).strip()
 BOT_RUN_MODE = os.getenv('BOT_RUN_MODE', 'single').strip().lower()
+PORT = int(os.getenv('PORT', '8080'))
 
 
 def load_sensitive_config(config_file=CONFIG_FILE):
@@ -79,6 +82,7 @@ Path('data').mkdir(exist_ok=True)
 # Global variable to track last signal and market state
 last_signal = None
 last_signal_time = None
+run_lock = threading.Lock()
 
 
 def get_runtime_csv_file():
@@ -468,6 +472,81 @@ def run_single_cycle():
         return 1
 
 
+def run_single_cycle_with_details():
+    """
+    Execute one trading cycle and return a structured response for HTTP callers.
+    """
+    current_time = datetime.now(IST)
+
+    if not is_market_open(current_time):
+        message = f"Market is CLOSED at {current_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
+        logging.info(message)
+        return {
+            'ok': True,
+            'status': 'skipped',
+            'message': message,
+            'time': current_time.isoformat(),
+        }, 200
+
+    exit_code = run_single_cycle()
+    if exit_code == 0:
+        return {
+            'ok': True,
+            'status': 'completed',
+            'message': 'Single trading cycle completed successfully',
+            'time': current_time.isoformat(),
+        }, 200
+
+    return {
+        'ok': False,
+        'status': 'failed',
+        'message': 'Single trading cycle failed. Check Cloud Run logs for details.',
+        'time': current_time.isoformat(),
+    }, 500
+
+
+app = Flask(__name__)
+
+
+@app.get('/')
+def home():
+    return jsonify({
+        'service': 'nifty-trading-bot',
+        'status': 'ready',
+        'trigger_endpoint': '/run',
+        'methods': ['GET', 'POST'],
+    })
+
+
+@app.get('/healthz')
+def healthz():
+    return jsonify({'ok': True, 'status': 'healthy'}), 200
+
+
+@app.route('/run', methods=['GET', 'POST'])
+def trigger_run():
+    if not run_lock.acquire(blocking=False):
+        return jsonify({
+            'ok': False,
+            'status': 'busy',
+            'message': 'A bot execution is already in progress.',
+        }), 409
+
+    try:
+        response, status_code = run_single_cycle_with_details()
+        return jsonify(response), status_code
+    finally:
+        run_lock.release()
+
+
+def run_http_service():
+    """
+    Run the Flask app for Cloud Run service mode.
+    """
+    logging.info(f"Starting Cloud Run HTTP service on port {PORT}")
+    app.run(host='0.0.0.0', port=PORT, debug=False)
+
+
 def run_continuous_bot():
     """
     Run the original continuous scheduler loop for local execution.
@@ -516,6 +595,8 @@ if __name__ == '__main__':
     try:
         if BOT_RUN_MODE == 'continuous':
             run_continuous_bot()
+        elif BOT_RUN_MODE == 'service':
+            run_http_service()
         else:
             raise SystemExit(run_single_cycle())
     except KeyboardInterrupt:
