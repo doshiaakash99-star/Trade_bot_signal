@@ -11,6 +11,7 @@ import os
 import tempfile
 import threading
 from pathlib import Path
+from google.cloud import secretmanager
 from google.cloud import storage
 from flask import Flask, jsonify
 
@@ -47,8 +48,8 @@ PORT = int(os.getenv('PORT', '8080'))
 
 def load_sensitive_config(config_file=CONFIG_FILE):
     """
-    Load sensitive values from environment variables or YAML config file.
-    Environment variables take precedence over file values.
+    Load sensitive values from environment variables, Secret Manager, or YAML config file.
+    Environment variables take precedence over Secret Manager and file values.
     """
     config = {}
 
@@ -66,9 +67,38 @@ def load_sensitive_config(config_file=CONFIG_FILE):
     telegram_bot_token = os.getenv('TELEGRAM_BOT_TOKEN', config.get('TELEGRAM_BOT_TOKEN', '')).strip()
     chat_id = os.getenv('CHAT_ID', str(config.get('CHAT_ID', ''))).strip()
 
+    # In Cloud Run/Cloud Build contexts, try Secret Manager if env vars are missing.
+    if not telegram_bot_token or not chat_id:
+        project_id = (
+            os.getenv('GOOGLE_CLOUD_PROJECT', '').strip()
+            or os.getenv('GCP_PROJECT', '').strip()
+        )
+
+        if project_id:
+            try:
+                client = secretmanager.SecretManagerServiceClient()
+
+                if not telegram_bot_token:
+                    token_name = f"projects/{project_id}/secrets/TELEGRAM_BOT_TOKEN/versions/latest"
+                    token_response = client.access_secret_version(request={'name': token_name})
+                    telegram_bot_token = token_response.payload.data.decode('utf-8').strip()
+
+                if not chat_id:
+                    chat_id_name = f"projects/{project_id}/secrets/CHAT_ID/versions/latest"
+                    chat_id_response = client.access_secret_version(request={'name': chat_id_name})
+                    chat_id = chat_id_response.payload.data.decode('utf-8').strip()
+
+                if telegram_bot_token and chat_id:
+                    logging.info("Loaded TELEGRAM_BOT_TOKEN and CHAT_ID from Secret Manager")
+
+            except Exception as exc:
+                logging.warning(f"Could not load secrets from Secret Manager: {exc}")
+
     if not telegram_bot_token or not chat_id:
         raise ValueError(
-            f"Missing TELEGRAM_BOT_TOKEN or CHAT_ID. Set env vars or update {config_file.resolve()}."
+            "Missing TELEGRAM_BOT_TOKEN or CHAT_ID. "
+            "Set env vars, configure Secret Manager access, or update "
+            f"{config_file.resolve()}."
         )
 
     return telegram_bot_token, chat_id
