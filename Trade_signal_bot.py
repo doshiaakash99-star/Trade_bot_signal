@@ -46,60 +46,25 @@ BOT_RUN_MODE = os.getenv('BOT_RUN_MODE', 'single').strip().lower()
 PORT = int(os.getenv('PORT', '8080'))
 
 
-def load_sensitive_config(config_file=CONFIG_FILE):
-    """
-    Load sensitive values from environment variables, Secret Manager, or YAML config file.
-    Environment variables take precedence over Secret Manager and file values.
-    """
-    config = {}
+def load_sensitive_config():
+    telegram_bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
+    chat_id = os.environ.get('CHAT_ID')
 
-    if config_file.exists():
+    if not telegram_bot_token or not chat_id:
+        # Fallback (optional, but if used, ensure the file is present)
+        # You might remove this fallback entirely if you only want to use Secret Manager
         try:
-            with open(config_file, 'r', encoding='utf-8') as file:
-                loaded = yaml.safe_load(file) or {}
-                if isinstance(loaded, dict):
-                    config = loaded
-                else:
-                    logging.warning(f"Invalid config format in {config_file}, expected key-value mapping")
-        except Exception as exc:
-            logging.error(f"Error loading config file {config_file}: {exc}")
+            with open('/app/trade_bot_secrets.yml', 'r') as f:
+                secrets = yaml.safe_load(f)
+                telegram_bot_token = telegram_bot_token or secrets.get('TELEGRAM_BOT_TOKEN')
+                chat_id = chat_id or secrets.get('CHAT_ID')
+        except FileNotFoundError:
+            pass # If the file doesn't exist, just continue
 
-    telegram_bot_token = os.getenv('TELEGRAM_BOT_TOKEN', config.get('TELEGRAM_BOT_TOKEN', '')).strip()
-    chat_id = os.getenv('CHAT_ID', str(config.get('CHAT_ID', ''))).strip()
-
-    # In Cloud Run/Cloud Build contexts, try Secret Manager if env vars are missing.
-    if not telegram_bot_token or not chat_id:
-        project_id = (
-            os.getenv('GOOGLE_CLOUD_PROJECT', '').strip()
-            or os.getenv('GCP_PROJECT', '').strip()
-        )
-
-        if project_id:
-            try:
-                client = secretmanager.SecretManagerServiceClient()
-
-                if not telegram_bot_token:
-                    token_name = f"projects/{project_id}/secrets/TELEGRAM_BOT_TOKEN/versions/latest"
-                    token_response = client.access_secret_version(request={'name': token_name})
-                    telegram_bot_token = token_response.payload.data.decode('utf-8').strip()
-
-                if not chat_id:
-                    chat_id_name = f"projects/{project_id}/secrets/CHAT_ID/versions/latest"
-                    chat_id_response = client.access_secret_version(request={'name': chat_id_name})
-                    chat_id = chat_id_response.payload.data.decode('utf-8').strip()
-
-                if telegram_bot_token and chat_id:
-                    logging.info("Loaded TELEGRAM_BOT_TOKEN and CHAT_ID from Secret Manager")
-
-            except Exception as exc:
-                logging.warning(f"Could not load secrets from Secret Manager: {exc}")
-
-    if not telegram_bot_token or not chat_id:
-        raise ValueError(
-            "Missing TELEGRAM_BOT_TOKEN or CHAT_ID. "
-            "Set env vars, configure Secret Manager access, or update "
-            f"{config_file.resolve()}."
-        )
+    if not telegram_bot_token:
+        raise ValueError("Missing TELEGRAM_BOT_TOKEN. Set env var or configure Secret Manager.")
+    if not chat_id:
+        raise ValueError("Missing CHAT_ID. Set env var or configure Secret Manager.")
 
     return telegram_bot_token, chat_id
 
