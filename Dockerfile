@@ -8,7 +8,6 @@ ENV PORT=8080
 WORKDIR /app
 
 COPY requirements.txt ./requirements.txt
-COPY dist ./dist
 
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
