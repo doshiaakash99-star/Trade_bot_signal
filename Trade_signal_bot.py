@@ -77,6 +77,7 @@ Path('data').mkdir(exist_ok=True)
 # Global variable to track last signal and market state
 last_signal = None
 last_signal_time = None
+last_signal_candle_time = None
 run_lock = threading.Lock()
 
 
@@ -308,6 +309,45 @@ def generate_signals(df):
         return None
 
 
+def generate_signal_for_pair(prev, latest):
+    """
+    Generate a signal for one previous/latest candle pair.
+    """
+    if (prev['ema_fast'] <= prev['ema_slow'] and latest['ema_fast'] > latest['ema_slow'] and
+        latest['ema_fast'] > latest['sma_trend'] and latest['ema_slow'] > latest['sma_trend']):
+        return 'BUY'
+    if (prev['ema_fast'] >= prev['ema_slow'] and latest['ema_fast'] < latest['ema_slow'] and
+        latest['ema_fast'] < latest['sma_trend'] and latest['ema_slow'] < latest['sma_trend']):
+        return 'SELL'
+    if ((prev['ema_fast'] > prev['ema_slow'] and latest['ema_fast'] < latest['ema_slow']) or
+        (prev['ema_fast'] < prev['ema_slow'] and latest['ema_fast'] > latest['ema_slow'])):
+        return 'EXIT'
+    return None
+
+
+def find_latest_signal(df, lookback_pairs=4):
+    """
+    Scan recent candle pairs so a delayed bot run can still catch missed signals.
+    """
+    if len(df) < 2:
+        return None, None
+
+    try:
+        max_pairs = min(lookback_pairs, len(df) - 1)
+        for offset in range(max_pairs):
+            latest_idx = len(df) - 1 - offset
+            prev_idx = latest_idx - 1
+            prev = df.iloc[prev_idx]
+            latest = df.iloc[latest_idx]
+            signal = generate_signal_for_pair(prev, latest)
+            if signal:
+                return signal, df.index[latest_idx]
+        return None, None
+    except Exception as e:
+        logging.error(f"Error finding latest signal: {e}")
+        return None, None
+
+
 def send_telegram_alert(message, retries=MAX_RETRIES):
     """
     Send alert via Telegram bot with retry logic.
@@ -330,21 +370,72 @@ def send_telegram_alert(message, retries=MAX_RETRIES):
     return False
 
 
+SIGNAL_EMOJIS = {
+    'BUY': '🟢📈',
+    'SELL': '🔴📉',
+    'EXIT': '🟡🚪',
+}
+
+
+def get_signal_emoji(signal):
+    return SIGNAL_EMOJIS.get(signal, '📊')
+
+
+def send_candle_update(df):
+    """
+    Send latest candle close and candle time on every trigger run.
+    """
+    if df.empty:
+        return
+
+    try:
+        latest = df.iloc[-1]
+        candle_time = df.index[-1]
+
+        if isinstance(candle_time, pd.Timestamp):
+            if candle_time.tzinfo is None:
+                candle_time = candle_time.tz_localize(IST)
+            else:
+                candle_time = candle_time.tz_convert(IST)
+
+        message = (
+            f"🕯️ NIFTY Candle Update\n"
+            f"Close: {latest['Close']:.2f}\n"
+            f"Candle Time: {candle_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
+        )
+        send_telegram_alert(message)
+    except Exception as e:
+        logging.error(f"Error sending candle update: {e}")
+
+
 def check_and_send_signal(df):
     """
     Check for new signals and send alert if different from last signal.
     """
-    global last_signal, last_signal_time
-    signal = generate_signals(df)
+    global last_signal, last_signal_time, last_signal_candle_time
+    signal, signal_candle_time = find_latest_signal(df)
     
-    if signal and signal != last_signal:
+    if signal and signal_candle_time is not None and signal_candle_time != last_signal_candle_time:
         try:
-            price = df.iloc[-1]['Close']
-            timestamp = df.index[-1].strftime('%Y-%m-%d %H:%M:%S')
-            message = f"NIFTY SIGNAL: {signal}\nTime: {timestamp}\nPrice: {price:.2f}"
+            price = df.loc[signal_candle_time]['Close']
+            candle_time = signal_candle_time
+
+            if isinstance(candle_time, pd.Timestamp):
+                if candle_time.tzinfo is None:
+                    candle_time = candle_time.tz_localize(IST)
+                else:
+                    candle_time = candle_time.tz_convert(IST)
+
+            emoji = get_signal_emoji(signal)
+            message = (
+                f"{emoji} NIFTY SIGNAL: {signal}\n"
+                f"Price: {price:.2f}\n"
+                f"Candle Time: {candle_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
+            )
             send_telegram_alert(message)
             last_signal = signal
             last_signal_time = datetime.now(IST)
+            last_signal_candle_time = signal_candle_time
             logging.info(f"New signal generated: {signal} at {price:.2f}")
         except Exception as e:
             logging.error(f"Error in check_and_send_signal: {e}")
@@ -385,6 +476,8 @@ def job(csv_file=CSV_FILE, current_time=None):
         if df.empty:
             logging.warning("No valid indicators calculated")
             return
+
+        send_candle_update(df)
         
         check_and_send_signal(df)
 
