@@ -78,6 +78,7 @@ Path('data').mkdir(exist_ok=True)
 last_signal = None
 last_signal_time = None
 last_signal_candle_time = None
+last_signal_type = None  # Track signal type to prevent duplicates
 run_lock = threading.Lock()
 
 
@@ -411,34 +412,43 @@ def send_candle_update(df):
 def check_and_send_signal(df):
     """
     Check for new signals and send alert if different from last signal.
+    Compares both signal type and candle time to prevent duplicates.
     """
-    global last_signal, last_signal_time, last_signal_candle_time
+    global last_signal, last_signal_time, last_signal_candle_time, last_signal_type
     signal, signal_candle_time = find_latest_signal(df)
     
-    if signal and signal_candle_time is not None and signal_candle_time != last_signal_candle_time:
-        try:
-            price = df.loc[signal_candle_time]['Close']
-            candle_time = signal_candle_time
+    # Only send if we have a new signal that's different from the last one
+    # Check both the signal type AND candle time to ensure we don't send duplicates
+    if signal and signal_candle_time is not None:
+        is_new_signal = (signal != last_signal_type) or (signal_candle_time != last_signal_candle_time)
+        
+        if is_new_signal:
+            try:
+                price = df.loc[signal_candle_time]['Close']
+                candle_time = signal_candle_time
 
-            if isinstance(candle_time, pd.Timestamp):
-                if candle_time.tzinfo is None:
-                    candle_time = candle_time.tz_localize(IST)
-                else:
-                    candle_time = candle_time.tz_convert(IST)
+                if isinstance(candle_time, pd.Timestamp):
+                    if candle_time.tzinfo is None:
+                        candle_time = candle_time.tz_localize(IST)
+                    else:
+                        candle_time = candle_time.tz_convert(IST)
 
-            emoji = get_signal_emoji(signal)
-            message = (
-                f"{emoji} NIFTY SIGNAL: {signal}\n"
-                f"Price: {price:.2f}\n"
-                f"Candle Time: {candle_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
-            )
-            send_telegram_alert(message)
-            last_signal = signal
-            last_signal_time = datetime.now(IST)
-            last_signal_candle_time = signal_candle_time
-            logging.info(f"New signal generated: {signal} at {price:.2f}")
-        except Exception as e:
-            logging.error(f"Error in check_and_send_signal: {e}")
+                emoji = get_signal_emoji(signal)
+                message = (
+                    f"{emoji} NIFTY SIGNAL: {signal}\n"
+                    f"Price: {price:.2f}\n"
+                    f"Candle Time: {candle_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
+                )
+                send_telegram_alert(message)
+                last_signal = signal
+                last_signal_type = signal  # Store signal type for comparison
+                last_signal_time = datetime.now(IST)
+                last_signal_candle_time = signal_candle_time
+                logging.info(f"New signal generated: {signal} at {price:.2f}")
+            except Exception as e:
+                logging.error(f"Error in check_and_send_signal: {e}")
+        else:
+            logging.debug(f"Signal {signal} at {signal_candle_time} already sent, skipping duplicate")
 
 
 def job(csv_file=CSV_FILE, current_time=None):
