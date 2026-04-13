@@ -3,6 +3,7 @@ import pandas as pd
 import logging
 import requests
 import yaml
+import json
 from datetime import datetime, timedelta
 import pytz
 import schedule
@@ -42,6 +43,8 @@ MARKET_OPEN_TIME = datetime.strptime('09:15', '%H:%M').time()
 MARKET_CLOSE_TIME = datetime.strptime('15:30', '%H:%M').time()
 GCS_BUCKET = os.getenv('GCS_BUCKET', '').strip()
 GCS_OBJECT = os.getenv('GCS_OBJECT', CSV_FILE).strip()
+GCS_SIGNAL_STATE_OBJECT = 'data/signal_state.json'
+SIGNAL_STATE_FILE = 'data/signal_state.json'
 BOT_RUN_MODE = os.getenv('BOT_RUN_MODE', 'single').strip().lower()
 PORT = int(os.getenv('PORT', '8080'))
 
@@ -97,6 +100,21 @@ def get_runtime_csv_file():
     return str(csv_path)
 
 
+def get_runtime_signal_state_file():
+    """
+    Resolve the signal-state JSON path for the current runtime.
+    Mirrors get_runtime_csv_file() so the state persists alongside the CSV.
+    """
+    if GCS_BUCKET:
+        temp_dir = Path(tempfile.gettempdir()) / 'shoonya-data'
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        return str(temp_dir / 'signal_state.json')
+
+    state_path = Path(SIGNAL_STATE_FILE)
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    return str(state_path)
+
+
 def download_csv_from_gcs(local_csv_file):
     """
     Download the historical CSV from Google Cloud Storage if configured.
@@ -134,6 +152,92 @@ def upload_csv_to_gcs(local_csv_file):
     except Exception as exc:
         logging.error(f"Error uploading CSV to GCS: {exc}")
         raise
+
+
+def download_signal_state_from_gcs(local_state_file):
+    """
+    Download the signal-state JSON from GCS so signal history survives process restarts.
+    """
+    if not GCS_BUCKET:
+        return
+
+    try:
+        client = storage.Client()
+        blob = client.bucket(GCS_BUCKET).blob(GCS_SIGNAL_STATE_OBJECT)
+        if blob.exists():
+            Path(local_state_file).parent.mkdir(parents=True, exist_ok=True)
+            blob.download_to_filename(local_state_file)
+            logging.info(f"Downloaded signal state from gs://{GCS_BUCKET}/{GCS_SIGNAL_STATE_OBJECT}")
+        else:
+            logging.info("No signal state found in GCS, starting fresh")
+    except Exception as exc:
+        logging.warning(f"Could not download signal state from GCS: {exc}")
+
+
+def upload_signal_state_to_gcs(local_state_file):
+    """
+    Upload the signal-state JSON to GCS after each cycle.
+    """
+    if not GCS_BUCKET or not os.path.exists(local_state_file):
+        return
+
+    try:
+        client = storage.Client()
+        blob = client.bucket(GCS_BUCKET).blob(GCS_SIGNAL_STATE_OBJECT)
+        blob.upload_from_filename(local_state_file)
+        logging.info(f"Uploaded signal state to gs://{GCS_BUCKET}/{GCS_SIGNAL_STATE_OBJECT}")
+    except Exception as exc:
+        logging.warning(f"Could not upload signal state to GCS: {exc}")
+
+
+def load_signal_state(state_file):
+    """
+    Load persisted signal state into globals so the bot doesn't re-send signals
+    after a process restart (Cloud Run cold start, container redeploy, etc.).
+    """
+    global last_signal, last_signal_type, last_signal_candle_time, last_signal_time
+
+    if not os.path.exists(state_file):
+        return
+
+    try:
+        with open(state_file, 'r') as f:
+            state = json.load(f)
+
+        last_signal_type = state.get('last_signal_type')
+        last_signal = last_signal_type
+
+        candle_time_str = state.get('last_signal_candle_time')
+        if candle_time_str:
+            ts = pd.Timestamp(candle_time_str)
+            last_signal_candle_time = ts.tz_localize(IST) if ts.tzinfo is None else ts.tz_convert(IST)
+
+        signal_time_str = state.get('last_signal_time')
+        if signal_time_str:
+            last_signal_time = datetime.fromisoformat(signal_time_str)
+
+        logging.info(f"Loaded signal state: {last_signal_type} at {last_signal_candle_time}")
+    except Exception as e:
+        logging.warning(f"Could not load signal state: {e}")
+
+
+def save_signal_state(state_file):
+    """
+    Persist current signal globals to a JSON file so the next process invocation
+    can skip signals that were already sent for the same candle.
+    """
+    try:
+        state = {
+            'last_signal_type': last_signal_type,
+            'last_signal_candle_time': str(last_signal_candle_time) if last_signal_candle_time is not None else None,
+            'last_signal_time': last_signal_time.isoformat() if last_signal_time is not None else None,
+        }
+        Path(state_file).parent.mkdir(parents=True, exist_ok=True)
+        with open(state_file, 'w') as f:
+            json.dump(state, f)
+        logging.debug(f"Saved signal state: {state}")
+    except Exception as e:
+        logging.warning(f"Could not save signal state: {e}")
 
 def is_market_open(current_time=None):
     """
@@ -401,18 +505,19 @@ def send_candle_update(df):
 
         message = (
             f"🕯️ NIFTY Candle Update\n"
-            f"Close: {latest['Close']:.2f}\n"
-            f"Candle Time: {candle_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
+            f"📌 Last Candle Close at: {latest['Close']:.2f}\n"
+            f"📌 Last Candle Time: {candle_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
         )
         send_telegram_alert(message)
     except Exception as e:
         logging.error(f"Error sending candle update: {e}")
 
 
-def check_and_send_signal(df):
+def check_and_send_signal(df, state_file=SIGNAL_STATE_FILE):
     """
     Check for new signals and send alert if different from last signal.
     Compares both signal type and candle time to prevent duplicates.
+    Persists the last-sent signal to state_file so restarts don't re-send.
     """
     global last_signal, last_signal_time, last_signal_candle_time, last_signal_type
     signal, signal_candle_time = find_latest_signal(df)
@@ -437,13 +542,15 @@ def check_and_send_signal(df):
                 message = (
                     f"{emoji} NIFTY SIGNAL: {signal}\n"
                     f"Price: {price:.2f}\n"
-                    f"Candle Time: {candle_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
+                    f"📌 Last Candle Close: {candle_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
+
                 )
                 send_telegram_alert(message)
                 last_signal = signal
                 last_signal_type = signal  # Store signal type for comparison
                 last_signal_time = datetime.now(IST)
                 last_signal_candle_time = signal_candle_time
+                save_signal_state(state_file)
                 logging.info(f"New signal generated: {signal} at {price:.2f}")
             except Exception as e:
                 logging.error(f"Error in check_and_send_signal: {e}")
@@ -451,7 +558,7 @@ def check_and_send_signal(df):
             logging.debug(f"Signal {signal} at {signal_candle_time} already sent, skipping duplicate")
 
 
-def job(csv_file=CSV_FILE, current_time=None):
+def job(csv_file=CSV_FILE, state_file=SIGNAL_STATE_FILE, current_time=None):
     """
     Main job: fetch data, calculate signals, and send alerts.
     Only runs during market hours (09:15 - 15:30 IST).
@@ -489,7 +596,7 @@ def job(csv_file=CSV_FILE, current_time=None):
 
         send_candle_update(df)
         
-        check_and_send_signal(df)
+        check_and_send_signal(df, state_file=state_file)
 
     except Exception as e:
         logging.error(f"Error in job execution: {e}")
@@ -550,9 +657,12 @@ def run_single_cycle():
     Execute one trading cycle for Cloud Run / hourly scheduler usage.
     """
     runtime_csv_file = get_runtime_csv_file()
+    runtime_state_file = get_runtime_signal_state_file()
 
     try:
         download_csv_from_gcs(runtime_csv_file)
+        download_signal_state_from_gcs(runtime_state_file)
+        load_signal_state(runtime_state_file)
 
         current_time = datetime.now(IST)
         if not is_market_open(current_time):
@@ -561,8 +671,9 @@ def run_single_cycle():
             )
             return 0
 
-        job(csv_file=runtime_csv_file, current_time=current_time)
+        job(csv_file=runtime_csv_file, state_file=runtime_state_file, current_time=current_time)
         upload_csv_to_gcs(runtime_csv_file)
+        upload_signal_state_to_gcs(runtime_state_file)
         logging.info("Single trading cycle completed successfully")
         return 0
     except Exception as exc:
@@ -672,6 +783,7 @@ def run_continuous_bot():
         logging.warning(f"Could not send startup notification: {startup_error}")
 
     initial_setup(send_status_message=True)
+    load_signal_state(SIGNAL_STATE_FILE)
     schedule.every().hour.at(":16").do(job)
     logging.info("Scheduler configured to run jobs every hour at :16 minutes.")
 
