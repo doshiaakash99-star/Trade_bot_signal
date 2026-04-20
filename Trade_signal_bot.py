@@ -280,10 +280,15 @@ def send_market_closed_alert():
 def fetch_data(start, end, interval='1h', retries=MAX_RETRIES):
     """
     Fetch data with retry logic and better error handling.
+    Ensure UTC-naive datetime values are passed to yfinance.
     """
     for attempt in range(retries):
         try:
-            data = yf.download(SYMBOL, start=start, end=end, interval=interval, progress=False)
+            # Convert start and end to UTC-naive format
+            start_utc = start.astimezone(pytz.UTC).replace(tzinfo=None)
+            end_utc = end.astimezone(pytz.UTC).replace(tzinfo=None)
+
+            data = yf.download(SYMBOL, start=start_utc, end=end_utc, interval=interval, progress=False)
 
             if data.empty:
                 logging.warning("No data fetched from yfinance")
@@ -488,14 +493,15 @@ def get_signal_emoji(signal):
 
 def send_candle_update(df):
     """
-    Send latest candle close and candle time on every trigger run.
+    Send details of the last completed candle.
     """
     if df.empty:
         return
 
     try:
-        latest = df.iloc[-1]
-        candle_time = df.index[-1]
+        # Use the last completed candle, not the in-progress one
+        latest_completed_candle = df.iloc[-2]  # Second-to-last row
+        candle_time = df.index[-2]  # Corresponding timestamp
 
         if isinstance(candle_time, pd.Timestamp):
             if candle_time.tzinfo is None:
@@ -505,8 +511,8 @@ def send_candle_update(df):
 
         message = (
             f"🕯️ NIFTY Candle Update\n"
-            f"📌 Last Candle Close at: {latest['Close']:.2f}\n"
-            f"📌 Last Candle Time: {candle_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
+            f"📌 Last Completed Candle Close: {latest_completed_candle['Close']:.2f}\n"
+            f"📌 Candle Start Time: {candle_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
         )
         send_telegram_alert(message)
     except Exception as e:
@@ -566,7 +572,7 @@ def job(csv_file=CSV_FILE, state_file=SIGNAL_STATE_FILE, current_time=None):
     try:
         now = current_time or datetime.now(IST)
         current_time = now.strftime('%Y-%m-%d %H:%M:%S')
-        
+
         # Skip if market is closed
         if not is_market_open(now):
             logging.debug(f"Market is CLOSED at {current_time}, skipping job")
@@ -574,13 +580,13 @@ def job(csv_file=CSV_FILE, state_file=SIGNAL_STATE_FILE, current_time=None):
 
         # Fetch latest data
         end = now
-        start = now - timedelta(days=60) if not os.path.exists(csv_file) else now - timedelta(days=2)
+        start = now - timedelta(days=60) if not os.path.exists(csv_file) else now - timedelta(days=7)
         df = fetch_data(start, end)
-        
+
         if df.empty:
             logging.warning("Failed to fetch data in job")
             return
-        
+
         update_csv(df, csv_file)
 
         # Load and process data
@@ -588,14 +594,14 @@ def job(csv_file=CSV_FILE, state_file=SIGNAL_STATE_FILE, current_time=None):
         numeric_cols = ['Open', 'High', 'Low', 'Close', 'Volume']
         df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
         df = df.dropna(subset=numeric_cols)
-        
+
         df = calculate_indicators(df)
         if df.empty:
             logging.warning("No valid indicators calculated")
             return
 
         send_candle_update(df)
-        
+
         check_and_send_signal(df, state_file=state_file)
 
     except Exception as e:

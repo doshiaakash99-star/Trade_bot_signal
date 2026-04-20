@@ -1,0 +1,307 @@
+2026-03-20 16:42:23,081 - INFO - Running initial setup
+2026-03-20 16:42:23,081 - INFO - CSV file not found, fetching 60 days of historical data
+2026-03-20 16:42:24,081 - INFO - Fetched 287 rows of data from yfinance
+2026-03-20 16:42:24,098 - INFO - Updated data/nifty_data_2003.csv with 287 rows
+2026-03-20 16:42:24,130 - INFO - Initial setup completed with 287 data points
+2026-03-20 16:46:15,686 - INFO - Bot stopped by user
+2026-03-20 16:47:04,115 - INFO - Running initial setup
+2026-03-20 16:47:04,115 - INFO - CSV file exists, updating with recent data
+2026-03-20 16:47:04,897 - INFO - Fetched 14 rows of data from yfinance
+2026-03-20 16:47:04,918 - INFO - Updated data/nifty_data_2003.csv with 287 rows
+2026-03-20 16:47:04,921 - INFO - Initial setup completed with 287 data points
+2026-03-20 16:47:04,929 - INFO - Scheduler started. Running every hour at :16 minutes during market hours (09:15 - 15:30 IST).
+2026-03-20 16:47:04,929 - INFO - Current time: 2026-03-20 16:47:04 IST
+2026-03-20 16:52:05,251 - INFO - Running initial setup
+2026-03-20 16:52:05,251 - INFO - CSV file exists, updating with recent data
+2026-03-20 16:52:06,220 - INFO - Fetched 14 rows of data from yfinance
+2026-03-20 16:52:06,240 - INFO - Updated data/nifty_data_2003.csv with 287 rows
+2026-03-20 16:52:06,255 - INFO - Initial setup completed with 287 data points
+2026-03-20 16:52:06,255 - INFO - Scheduler started. Running every hour at :16 minutes during market hours (09:15 - 15:30 IST).
+2026-03-20 16:52:06,257 - INFO - Current time: 2026-03-20 16:52:06 IST
+2026-03-20 16:57:03,908 - INFO - Bot stopped by user
+2026-03-20 16:58:30,855 - INFO - Bot stopped by user
+2026-03-20 17:01:45,517 - ERROR - Setup Error: Market is CLOSED. Current time: 2026-03-20 17:01:45 IST
+Market hours: 09:15 - 15:30 IST (Mon-Fri). Please start bot during market hours.
+2026-03-20 17:02:30,729 - ERROR - Setup Error: Market is CLOSED. Current time: 2026-03-20 17:02:30 IST
+Market hours: 09:15 - 15:30 IST (Mon-Fri). Please start bot during market hours.
+2026-03-20 17:03:48,646 - ERROR - Setup Error: Market is CLOSED. Current time: 2026-03-20 17:03:48 IST
+Market hours: 09:15 - 15:30 IST (Mon-Fri). Please start bot during market hours.
+2026-03-20 17:03:50,044 - INFO - Market closed notification sent to Telegram
+2026-03-20 17:04:07,665 - ERROR - Setup Error: Market is CLOSED. Current time: 2026-03-20 17:04:07 IST
+Market hours: 09:15 - 15:30 IST (Mon-Fri). Please start bot during market hours.
+2026-03-20 17:04:08,987 - INFO - Market closed notification sent to Telegram
+2026-03-20 17:05:53,510 - ERROR - Setup Error: Market is CLOSED. Current time: 2026-03-20 17:05:53 IST
+Market hours: 09:15 - 15:30 IST (Mon-Fri). Please start bot during market hours.
+2026-03-20 17:05:54,746 - INFO - Market closed notification sent to Telegram
+2026-03-21 14:46:46,963 - ERROR - Setup Error: Market is CLOSED. Current time: 2026-03-21 14:46:46 IST
+Market hours: 09:15 - 15:30 IST (Mon-Fri). Please start bot during market hours.
+2026-03-21 14:46:48,848 - INFO - Market closed notification sent to Telegram
+2026-03-23 09:05:47,780 - INFO - Market is OPEN. Bot started at 2026-03-23 09:05:47 IST
+2026-03-23 09:05:47,780 - INFO - Bot will exit automatically at 15:30 IST when market closes.
+2026-03-23 09:05:49,354 - INFO - Startup notification sent to Telegram
+2026-03-23 09:05:49,354 - INFO - Running initial setup
+2026-03-23 09:05:49,356 - INFO - Testing Telegram connection with Chat ID: 1464925599
+2026-03-23 09:05:50,801 - INFO - Telegram credentials verified successfully
+2026-03-23 09:05:50,801 - INFO - CSV file exists, updating with recent data
+2026-03-23 09:05:51,411 - ERROR - $^NSEI: possibly delisted; no price data found  (1h 2026-03-21 09:05:50.801318+05:30 -> 2026-03-23 09:05:50.801318+05:30)
+2026-03-23 09:05:51,412 - ERROR - 
+1 Failed download:
+2026-03-23 09:05:51,412 - ERROR - ['^NSEI']: possibly delisted; no price data found  (1h 2026-03-21 09:05:50.801318+05:30 -> 2026-03-23 09:05:50.801318+05:30)
+2026-03-23 09:05:51,433 - WARNING - No data fetched from yfinance
+2026-03-23 09:05:51,462 - INFO - Initial setup completed with 287 data points
+2026-03-23 09:05:51,464 - INFO - Scheduler configured to run jobs every hour at :16 minutes.
+2026-03-23 09:16:52,061 - INFO - Fetched 1 rows of data from yfinance
+2026-03-23 09:16:52,123 - INFO - Updated data/nifty_data_2003.csv with 288 rows
+2026-03-23 10:16:52,603 - INFO - Fetched 2 rows of data from yfinance
+2026-03-23 10:16:52,658 - INFO - Updated data/nifty_data_2003.csv with 289 rows
+2026-03-23 11:16:53,440 - INFO - Fetched 3 rows of data from yfinance
+2026-03-23 11:16:53,508 - INFO - Updated data/nifty_data_2003.csv with 290 rows
+2026-03-23 12:16:54,104 - INFO - Fetched 4 rows of data from yfinance
+2026-03-23 12:16:54,155 - INFO - Updated data/nifty_data_2003.csv with 291 rows
+2026-03-23 13:16:54,676 - INFO - Fetched 5 rows of data from yfinance
+2026-03-23 13:16:54,713 - INFO - Updated data/nifty_data_2003.csv with 292 rows
+2026-03-23 14:16:55,237 - INFO - Fetched 6 rows of data from yfinance
+2026-03-23 14:16:55,294 - INFO - Updated data/nifty_data_2003.csv with 293 rows
+2026-03-23 15:16:55,804 - INFO - Fetched 7 rows of data from yfinance
+2026-03-23 15:16:55,852 - INFO - Updated data/nifty_data_2003.csv with 294 rows
+2026-03-23 15:30:55,887 - INFO - Market closed at 2026-03-23 15:30:55 IST. Bot will now exit.
+2026-03-23 15:30:57,931 - INFO - Market closed alert sent successfully to Telegram
+2026-03-23 15:30:57,934 - INFO - Bot exited gracefully after market close.
+2026-03-24 10:37:12,801 - INFO - Market is OPEN. Bot started at 2026-03-24 10:37:12 IST
+2026-03-24 10:37:12,803 - INFO - Bot will exit automatically at 15:30 IST when market closes.
+2026-03-24 10:37:14,716 - INFO - Startup notification sent to Telegram
+2026-03-24 10:37:14,717 - INFO - Running initial setup
+2026-03-24 10:37:14,717 - INFO - Testing Telegram connection with Chat ID: 1464925599
+2026-03-24 10:37:16,423 - INFO - Telegram credentials verified successfully
+2026-03-24 10:37:16,424 - INFO - CSV file exists, updating with recent data
+2026-03-24 10:37:17,845 - INFO - Fetched 9 rows of data from yfinance
+2026-03-24 10:37:17,882 - INFO - Updated data/nifty_data_2003.csv with 296 rows
+2026-03-24 10:37:17,898 - INFO - Initial setup completed with 296 data points
+2026-03-24 10:37:17,902 - INFO - Scheduler configured to run jobs every hour at :16 minutes.
+2026-03-24 11:16:18,437 - INFO - Fetched 10 rows of data from yfinance
+2026-03-24 11:16:18,489 - INFO - Updated data/nifty_data_2003.csv with 297 rows
+2026-03-24 12:16:18,942 - INFO - Fetched 11 rows of data from yfinance
+2026-03-24 12:16:18,977 - INFO - Updated data/nifty_data_2003.csv with 298 rows
+2026-03-24 13:16:19,566 - INFO - Fetched 12 rows of data from yfinance
+2026-03-24 13:16:19,617 - INFO - Updated data/nifty_data_2003.csv with 299 rows
+2026-03-24 14:16:20,440 - INFO - Fetched 13 rows of data from yfinance
+2026-03-24 14:16:20,525 - INFO - Updated data/nifty_data_2003.csv with 300 rows
+2026-03-24 14:16:22,727 - INFO - Telegram alert sent successfully
+2026-03-24 14:16:22,731 - INFO - New signal generated: EXIT at 23002.00
+2026-03-24 15:16:23,201 - INFO - Fetched 14 rows of data from yfinance
+2026-03-24 15:16:23,242 - INFO - Updated data/nifty_data_2003.csv with 301 rows
+2026-03-24 15:30:23,274 - INFO - Market closed at 2026-03-24 15:30:23 IST. Bot will now exit.
+2026-03-24 15:30:24,840 - INFO - Market closed alert sent successfully to Telegram
+2026-03-24 15:30:24,840 - INFO - Bot exited gracefully after market close.
+2026-03-25 10:37:04,188 - INFO - Market is OPEN. Bot started at 2026-03-25 10:37:04 IST
+2026-03-25 10:37:04,189 - INFO - Bot will exit automatically at 15:30 IST when market closes.
+2026-03-25 10:37:05,790 - INFO - Startup notification sent to Telegram
+2026-03-25 10:37:05,791 - INFO - Running initial setup
+2026-03-25 10:37:05,794 - INFO - Testing Telegram connection with Chat ID: 1464925599
+2026-03-25 10:37:07,444 - INFO - Telegram credentials verified successfully
+2026-03-25 10:37:07,446 - INFO - CSV file exists, updating with recent data
+2026-03-25 10:37:08,408 - INFO - Fetched 15 rows of data from yfinance
+2026-03-25 10:37:08,463 - INFO - Updated data/nifty_data_2003.csv with 303 rows
+2026-03-25 10:37:08,484 - INFO - Initial setup completed with 303 data points
+2026-03-25 10:37:08,488 - INFO - Scheduler configured to run jobs every hour at :16 minutes.
+2026-03-25 11:16:09,174 - INFO - Fetched 15 rows of data from yfinance
+2026-03-25 11:16:09,237 - INFO - Updated data/nifty_data_2003.csv with 304 rows
+2026-03-25 12:16:09,592 - INFO - Fetched 15 rows of data from yfinance
+2026-03-25 12:16:09,650 - INFO - Updated data/nifty_data_2003.csv with 305 rows
+2026-03-25 13:16:10,100 - INFO - Fetched 15 rows of data from yfinance
+2026-03-25 13:16:10,159 - INFO - Updated data/nifty_data_2003.csv with 306 rows
+2026-03-25 14:16:10,615 - INFO - Fetched 15 rows of data from yfinance
+2026-03-25 14:16:10,668 - INFO - Updated data/nifty_data_2003.csv with 307 rows
+2026-03-25 15:16:11,125 - INFO - Fetched 15 rows of data from yfinance
+2026-03-25 15:16:11,195 - INFO - Updated data/nifty_data_2003.csv with 308 rows
+2026-03-25 15:30:11,237 - INFO - Market closed at 2026-03-25 15:30:11 IST. Bot will now exit.
+2026-03-25 15:30:23,538 - INFO - Market closed alert sent successfully to Telegram
+2026-03-25 15:30:23,543 - INFO - Bot exited gracefully after market close.
+2026-03-27 09:17:30,692 - INFO - Market is OPEN. Bot started at 2026-03-27 09:17:30 IST
+2026-03-27 09:17:30,693 - INFO - Bot will exit automatically at 15:30 IST when market closes.
+2026-03-27 09:17:32,097 - INFO - Startup notification sent to Telegram
+2026-03-27 09:17:32,098 - INFO - Running initial setup
+2026-03-27 09:17:32,098 - INFO - Testing Telegram connection with Chat ID: 1464925599
+2026-03-27 09:17:33,259 - INFO - Telegram credentials verified successfully
+2026-03-27 09:17:33,260 - INFO - CSV file exists, updating with recent data
+2026-03-27 09:17:34,063 - INFO - Fetched 8 rows of data from yfinance
+2026-03-27 09:17:34,098 - INFO - Updated data/nifty_data_2003.csv with 309 rows
+2026-03-27 09:17:34,115 - INFO - Initial setup completed with 309 data points
+2026-03-27 09:17:34,118 - INFO - Scheduler configured to run jobs every hour at :16 minutes.
+2026-03-27 10:16:34,551 - INFO - Fetched 8 rows of data from yfinance
+2026-03-27 10:16:34,607 - INFO - Updated data/nifty_data_2003.csv with 310 rows
+2026-03-27 10:16:36,688 - INFO - Telegram alert sent successfully
+2026-03-27 10:16:36,692 - INFO - Sent last close update for candle at 2026-03-27 10:15:00
+2026-03-27 11:16:37,226 - INFO - Fetched 8 rows of data from yfinance
+2026-03-27 11:16:37,288 - INFO - Updated data/nifty_data_2003.csv with 311 rows
+2026-03-27 11:16:39,247 - INFO - Telegram alert sent successfully
+2026-03-27 11:16:39,251 - INFO - Sent last close update for candle at 2026-03-27 11:15:00
+2026-03-27 12:16:39,933 - INFO - Fetched 8 rows of data from yfinance
+2026-03-27 12:16:39,988 - INFO - Updated data/nifty_data_2003.csv with 312 rows
+2026-03-27 12:16:41,926 - INFO - Telegram alert sent successfully
+2026-03-27 12:16:41,928 - INFO - Sent last close update for candle at 2026-03-27 12:15:00
+2026-03-27 13:16:42,340 - INFO - Fetched 8 rows of data from yfinance
+2026-03-27 13:16:42,389 - INFO - Updated data/nifty_data_2003.csv with 313 rows
+2026-03-27 13:16:54,359 - INFO - Telegram alert sent successfully
+2026-03-27 13:16:54,365 - INFO - Sent last close update for candle at 2026-03-27 13:15:00
+2026-03-27 14:16:55,000 - INFO - Fetched 8 rows of data from yfinance
+2026-03-27 14:16:55,033 - INFO - Updated data/nifty_data_2003.csv with 314 rows
+2026-03-27 14:17:06,733 - INFO - Telegram alert sent successfully
+2026-03-27 14:17:06,733 - INFO - Sent last close update for candle at 2026-03-27 14:15:00
+2026-03-27 14:24:04,530 - INFO - Bot stopped by user (Ctrl+C)
+2026-03-27 14:24:04,530 - INFO - Sending market close alert...
+2026-03-27 14:24:05,941 - INFO - Market closed alert sent successfully to Telegram
+2026-03-27 14:24:14,000 - INFO - Market is OPEN. Bot started at 2026-03-27 14:24:14 IST
+2026-03-27 14:24:14,000 - INFO - Bot will exit automatically at 15:30 IST when market closes.
+2026-03-27 14:24:15,470 - INFO - Startup notification sent to Telegram
+2026-03-27 14:24:15,470 - INFO - Running initial setup
+2026-03-27 14:24:15,472 - INFO - Testing Telegram connection with Chat ID: 1464925599
+2026-03-27 14:24:16,767 - INFO - Telegram credentials verified successfully
+2026-03-27 14:24:16,767 - INFO - CSV file exists, updating with recent data
+2026-03-27 14:24:17,933 - INFO - Fetched 8 rows of data from yfinance
+2026-03-27 14:24:17,980 - INFO - Updated data/nifty_data_2003.csv with 314 rows
+2026-03-27 14:24:18,000 - INFO - Initial setup completed with 314 data points
+2026-03-27 14:24:18,004 - INFO - Scheduler configured to run jobs every hour at :16 minutes.
+2026-03-27 15:16:18,397 - INFO - Fetched 8 rows of data from yfinance
+2026-03-27 15:16:18,445 - INFO - Updated data/nifty_data_2003.csv with 315 rows
+2026-03-27 15:16:20,588 - INFO - Telegram alert sent successfully
+2026-03-27 15:16:20,594 - INFO - Sent last close update for candle at 2026-03-27 15:15:00
+2026-03-27 15:30:20,607 - INFO - Market closed at 2026-03-27 15:30:20 IST. Bot will now exit.
+2026-03-27 15:30:22,562 - INFO - Market closed alert sent successfully to Telegram
+2026-03-27 15:30:22,574 - INFO - Bot exited gracefully after market close.
+2026-03-30 10:12:56,770 - INFO - Market is OPEN. Bot started at 2026-03-30 10:12:56 IST
+2026-03-30 10:12:56,820 - INFO - Bot will exit automatically at 15:30 IST when market closes.
+2026-03-30 10:13:00,253 - INFO - Startup notification sent to Telegram
+2026-03-30 10:13:00,254 - INFO - Running initial setup
+2026-03-30 10:13:00,254 - INFO - Testing Telegram connection with Chat ID: 1464925599
+2026-03-30 10:13:12,172 - INFO - Telegram credentials verified successfully
+2026-03-30 10:13:12,174 - INFO - CSV file exists, updating with recent data
+2026-03-30 10:13:13,023 - INFO - Fetched 1 rows of data from yfinance
+2026-03-30 10:13:13,072 - INFO - Updated data/nifty_data_2003.csv with 316 rows
+2026-03-30 10:13:13,098 - INFO - Initial setup completed with 316 data points
+2026-03-30 10:13:13,101 - INFO - Scheduler configured to run jobs every hour at :16 minutes.
+2026-03-30 10:16:13,683 - INFO - Fetched 2 rows of data from yfinance
+2026-03-30 10:16:13,730 - INFO - Updated data/nifty_data_2003.csv with 317 rows
+2026-03-30 10:16:15,510 - INFO - Telegram alert sent successfully
+2026-03-30 10:16:15,514 - INFO - Sent last close update for candle at 2026-03-30 10:15:00
+2026-03-30 11:16:15,904 - INFO - Fetched 3 rows of data from yfinance
+2026-03-30 11:16:15,947 - INFO - Updated data/nifty_data_2003.csv with 318 rows
+2026-03-30 11:16:17,875 - INFO - Telegram alert sent successfully
+2026-03-30 11:16:17,880 - INFO - Sent last close update for candle at 2026-03-30 11:15:00
+2026-03-30 12:16:18,388 - INFO - Fetched 4 rows of data from yfinance
+2026-03-30 12:16:18,443 - INFO - Updated data/nifty_data_2003.csv with 319 rows
+2026-03-30 12:16:25,400 - INFO - Telegram alert sent successfully
+2026-03-30 12:16:25,404 - INFO - Sent last close update for candle at 2026-03-30 12:15:00
+2026-03-30 13:16:25,925 - INFO - Fetched 5 rows of data from yfinance
+2026-03-30 13:16:25,987 - INFO - Updated data/nifty_data_2003.csv with 320 rows
+2026-03-30 13:16:28,047 - INFO - Telegram alert sent successfully
+2026-03-30 13:16:28,059 - INFO - Sent last close update for candle at 2026-03-30 13:15:00
+2026-03-30 14:16:28,720 - INFO - Fetched 6 rows of data from yfinance
+2026-03-30 14:16:28,777 - INFO - Updated data/nifty_data_2003.csv with 321 rows
+2026-03-30 14:16:30,741 - INFO - Telegram alert sent successfully
+2026-03-30 14:16:30,744 - INFO - Sent last close update for candle at 2026-03-30 14:15:00
+2026-03-30 15:16:31,275 - INFO - Fetched 7 rows of data from yfinance
+2026-03-30 15:16:31,342 - INFO - Updated data/nifty_data_2003.csv with 322 rows
+2026-03-30 15:16:33,079 - INFO - Telegram alert sent successfully
+2026-03-30 15:16:33,079 - INFO - Sent last close update for candle at 2026-03-30 15:15:00
+2026-03-30 15:30:33,099 - INFO - Market closed at 2026-03-30 15:30:33 IST. Bot will now exit.
+2026-03-30 15:30:35,216 - INFO - Market closed alert sent successfully to Telegram
+2026-03-30 15:30:35,217 - INFO - Bot exited gracefully after market close.
+2026-04-01 10:13:53,398 - INFO - Market is OPEN. Bot started at 2026-04-01 10:13:53 IST
+2026-04-01 10:13:53,398 - INFO - Bot will exit automatically at 15:30 IST when market closes.
+2026-04-01 10:13:54,916 - INFO - Startup notification sent to Telegram
+2026-04-01 10:13:54,916 - INFO - Running initial setup
+2026-04-01 10:13:54,918 - INFO - Testing Telegram connection with Chat ID: 1464925599
+2026-04-01 10:13:56,311 - INFO - Telegram credentials verified successfully
+2026-04-01 10:13:56,314 - INFO - CSV file exists, updating with recent data
+2026-04-01 10:13:57,272 - INFO - Fetched 8 rows of data from yfinance
+2026-04-01 10:13:57,336 - INFO - Updated data/nifty_data_2003.csv with 323 rows
+2026-04-01 10:13:57,359 - INFO - Initial setup completed with 323 data points
+2026-04-01 10:13:57,363 - INFO - Scheduler configured to run jobs every hour at :16 minutes.
+2026-04-01 10:16:57,679 - INFO - Fetched 8 rows of data from yfinance
+2026-04-01 10:16:57,729 - INFO - Updated data/nifty_data_2003.csv with 324 rows
+2026-04-01 10:16:59,697 - INFO - Telegram alert sent successfully
+2026-04-01 10:16:59,702 - INFO - Sent last close update for candle at 2026-04-01 10:15:00
+2026-04-01 11:17:00,147 - INFO - Fetched 8 rows of data from yfinance
+2026-04-01 11:17:00,201 - INFO - Updated data/nifty_data_2003.csv with 325 rows
+2026-04-01 11:17:02,083 - INFO - Telegram alert sent successfully
+2026-04-01 11:17:02,087 - INFO - Sent last close update for candle at 2026-04-01 11:15:00
+2026-04-01 12:16:02,528 - INFO - Fetched 8 rows of data from yfinance
+2026-04-01 12:16:02,571 - INFO - Updated data/nifty_data_2003.csv with 326 rows
+2026-04-01 12:16:04,347 - INFO - Telegram alert sent successfully
+2026-04-01 12:16:04,351 - INFO - Sent last close update for candle at 2026-04-01 12:15:00
+2026-04-01 13:16:04,966 - INFO - Fetched 8 rows of data from yfinance
+2026-04-01 13:16:05,040 - INFO - Updated data/nifty_data_2003.csv with 327 rows
+2026-04-01 13:16:07,217 - INFO - Telegram alert sent successfully
+2026-04-01 13:16:07,221 - INFO - Sent last close update for candle at 2026-04-01 13:15:00
+2026-04-01 13:16:09,126 - INFO - Telegram alert sent successfully
+2026-04-01 13:16:09,132 - INFO - New signal generated: EXIT at 22883.30
+2026-04-01 14:16:09,605 - INFO - Fetched 8 rows of data from yfinance
+2026-04-01 14:16:09,648 - INFO - Updated data/nifty_data_2003.csv with 328 rows
+2026-04-01 14:16:11,720 - INFO - Telegram alert sent successfully
+2026-04-01 14:16:11,725 - INFO - Sent last close update for candle at 2026-04-01 14:15:00
+2026-04-01 15:16:12,178 - INFO - Fetched 8 rows of data from yfinance
+2026-04-01 15:16:12,245 - INFO - Updated data/nifty_data_2003.csv with 329 rows
+2026-04-01 15:16:14,168 - INFO - Telegram alert sent successfully
+2026-04-01 15:16:14,174 - INFO - Sent last close update for candle at 2026-04-01 15:15:00
+2026-04-01 15:16:16,183 - INFO - Telegram alert sent successfully
+2026-04-01 15:16:16,188 - INFO - New signal generated: SELL at 22671.65
+2026-04-01 15:30:16,198 - INFO - Market closed at 2026-04-01 15:30:16 IST. Bot will now exit.
+2026-04-01 15:30:18,248 - INFO - Market closed alert sent successfully to Telegram
+2026-04-01 15:30:18,248 - INFO - Bot exited gracefully after market close.
+2026-04-02 09:46:32,984 - INFO - Market is OPEN. Bot started at 2026-04-02 09:46:32 IST
+2026-04-02 09:46:32,984 - INFO - Bot will exit automatically at 15:30 IST when market closes.
+2026-04-02 09:46:34,444 - INFO - Startup notification sent to Telegram
+2026-04-02 09:46:34,444 - INFO - Running initial setup
+2026-04-02 09:46:34,444 - INFO - Testing Telegram connection with Chat ID: 1464925599
+2026-04-02 09:46:36,018 - INFO - Telegram credentials verified successfully
+2026-04-02 09:46:36,018 - INFO - CSV file exists, updating with recent data
+2026-04-02 09:46:36,958 - INFO - Fetched 8 rows of data from yfinance
+2026-04-02 09:46:37,006 - INFO - Updated data/nifty_data_2003.csv with 330 rows
+2026-04-02 09:46:37,020 - INFO - Initial setup completed with 330 data points
+2026-04-02 09:46:37,024 - INFO - Scheduler configured to run jobs every hour at :16 minutes.
+2026-04-02 10:16:37,489 - INFO - Fetched 9 rows of data from yfinance
+2026-04-02 10:16:37,530 - INFO - Updated data/nifty_data_2003.csv with 331 rows
+2026-04-02 10:16:39,384 - INFO - Telegram alert sent successfully
+2026-04-02 10:16:39,388 - INFO - Sent last close update for candle at 2026-04-02 10:15:00
+2026-04-02 10:16:41,288 - INFO - Telegram alert sent successfully
+2026-04-02 10:16:41,292 - INFO - New signal generated: SELL at 22671.65
+2026-04-02 10:20:58,577 - INFO - Bot stopped by user (Ctrl+C)
+2026-04-02 10:20:58,578 - INFO - Sending market close alert...
+2026-04-02 10:21:00,192 - INFO - Market closed alert sent successfully to Telegram
+2026-04-02 10:21:14,903 - INFO - Market is OPEN. Bot started at 2026-04-02 10:21:14 IST
+2026-04-02 10:21:14,904 - INFO - Bot will exit automatically at 15:30 IST when market closes.
+2026-04-02 10:21:16,217 - INFO - Startup notification sent to Telegram
+2026-04-02 10:21:16,217 - INFO - Running initial setup
+2026-04-02 10:21:16,218 - INFO - Testing Telegram connection with Chat ID: 1464925599
+2026-04-02 10:21:17,584 - INFO - Telegram credentials verified successfully
+2026-04-02 10:21:17,585 - INFO - CSV file exists, updating with recent data
+2026-04-02 10:21:18,376 - INFO - Fetched 9 rows of data from yfinance
+2026-04-02 10:21:18,428 - INFO - Updated data/nifty_data_2003.csv with 331 rows
+2026-04-02 10:21:18,455 - INFO - Initial setup completed with 331 data points
+2026-04-02 10:21:18,459 - INFO - Scheduler configured to run jobs every hour at :16 minutes.
+2026-04-02 11:16:19,187 - INFO - Fetched 10 rows of data from yfinance
+2026-04-02 11:16:19,252 - INFO - Updated data/nifty_data_2003.csv with 332 rows
+2026-04-02 11:16:21,425 - INFO - Telegram alert sent successfully
+2026-04-02 11:16:21,464 - INFO - Sent last close update for candle at 2026-04-02 11:15:00
+2026-04-02 12:16:21,938 - INFO - Fetched 11 rows of data from yfinance
+2026-04-02 12:16:21,999 - INFO - Updated data/nifty_data_2003.csv with 333 rows
+2026-04-02 12:16:34,336 - INFO - Telegram alert sent successfully
+2026-04-02 12:16:34,340 - INFO - Sent last close update for candle at 2026-04-02 12:15:00
+2026-04-02 13:16:34,686 - INFO - Fetched 12 rows of data from yfinance
+2026-04-02 13:16:34,744 - INFO - Updated data/nifty_data_2003.csv with 334 rows
+2026-04-02 13:16:36,865 - INFO - Telegram alert sent successfully
+2026-04-02 13:16:36,869 - INFO - Sent last close update for candle at 2026-04-02 13:15:00
+2026-04-02 14:16:37,307 - INFO - Fetched 13 rows of data from yfinance
+2026-04-02 14:16:37,356 - INFO - Updated data/nifty_data_2003.csv with 335 rows
+2026-04-02 14:16:38,866 - INFO - Telegram alert sent successfully
+2026-04-02 14:16:38,866 - INFO - Sent last close update for candle at 2026-04-02 14:15:00
+2026-04-02 15:16:39,935 - INFO - Fetched 14 rows of data from yfinance
+2026-04-02 15:16:40,005 - INFO - Updated data/nifty_data_2003.csv with 336 rows
+2026-04-02 15:16:43,331 - INFO - Telegram alert sent successfully
+2026-04-02 15:16:43,337 - INFO - Sent last close update for candle at 2026-04-02 15:15:00
+2026-04-02 15:16:45,864 - INFO - Telegram alert sent successfully
+2026-04-02 15:16:45,869 - INFO - New signal generated: EXIT at 22766.50
+2026-04-02 15:30:45,878 - INFO - Market closed at 2026-04-02 15:30:45 IST. Bot will now exit.
+2026-04-02 15:30:48,488 - INFO - Market closed alert sent successfully to Telegram
+2026-04-02 15:30:48,492 - INFO - Bot exited gracefully after market close.
