@@ -277,6 +277,35 @@ def send_market_closed_alert():
         logging.error(f"Error sending market closed alert: {str(e)}")
         return False
 
+
+def _is_intraday_interval(interval):
+    return interval.endswith('m') or interval.endswith('h')
+
+
+def _build_intraday_period(start, end):
+    buffered_window = max(end - start, timedelta(days=1)) + timedelta(days=1)
+    total_seconds = max(int(buffered_window.total_seconds()), 1)
+    total_days = max(1, (total_seconds + 86399) // 86400)
+    return f"{total_days}d"
+
+
+def _normalize_yfinance_data(data):
+    if data.empty:
+        return pd.DataFrame()
+
+    data = data[['Open', 'High', 'Low', 'Close', 'Volume']]
+    data.columns = [col[0] if isinstance(col, tuple) else col for col in data.columns]
+
+    if isinstance(data.index, pd.MultiIndex) and 'Ticker' in data.index.names:
+        data = data.droplevel('Ticker')
+
+    if data.index.tz is None:
+        data.index = data.index.tz_localize(pytz.UTC).tz_convert(IST)
+    else:
+        data.index = data.index.tz_convert(IST)
+
+    return data
+
 def fetch_data(start, end, interval='1h', retries=MAX_RETRIES):
     """
     Fetch data with retry logic and better error handling.
@@ -284,31 +313,27 @@ def fetch_data(start, end, interval='1h', retries=MAX_RETRIES):
     """
     for attempt in range(retries):
         try:
-            # Convert start and end to UTC-naive format
-            start_utc = start.astimezone(pytz.UTC).replace(tzinfo=None)
-            end_utc = end.astimezone(pytz.UTC).replace(tzinfo=None)
-
-            data = yf.download(SYMBOL, start=start_utc, end=end_utc, interval=interval, progress=False)
+            if _is_intraday_interval(interval):
+                period = _build_intraday_period(start, end)
+                ticker = yf.Ticker(SYMBOL)
+                data = ticker.history(period=period, interval=interval, auto_adjust=False, actions=False)
+                logging.info(f"Fetched intraday data from yfinance using period={period}, interval={interval}")
+            else:
+                # Convert start and end to UTC-naive format for non-intraday requests
+                start_utc = start.astimezone(pytz.UTC).replace(tzinfo=None)
+                end_utc = end.astimezone(pytz.UTC).replace(tzinfo=None)
+                data = yf.download(SYMBOL, start=start_utc, end=end_utc, interval=interval, progress=False)
 
             if data.empty:
                 logging.warning("No data fetched from yfinance")
                 return pd.DataFrame()
 
-            # Keep only required columns
-            data = data[['Open', 'High', 'Low', 'Close', 'Volume']]
+            data = _normalize_yfinance_data(data)
+            data = data.loc[(data.index >= start) & (data.index <= end)]
 
-            # Flatten MultiIndex columns if present
-            data.columns = [col[0] if isinstance(col, tuple) else col for col in data.columns]
-
-            # Handle MultiIndex in rows
-            if isinstance(data.index, pd.MultiIndex) and 'Ticker' in data.index.names:
-                data = data.droplevel('Ticker')
-
-            # Ensure timezone-aware
-            if data.index.tz is None:
-                data.index = data.index.tz_localize(pytz.UTC).tz_convert(IST)
-            else:
-                data.index = data.index.tz_convert(IST)
+            if data.empty:
+                logging.warning("No data remained after filtering yfinance response to requested window")
+                return pd.DataFrame()
 
             logging.info(f"Fetched {len(data)} rows of data from yfinance")
             return data
