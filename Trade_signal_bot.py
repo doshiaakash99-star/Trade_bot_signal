@@ -34,8 +34,8 @@ CONFIG_FILE = BASE_DIR / 'trade_bot_secrets.yml'
 SYMBOL = '^NSEI'
 CSV_FILE = 'data/nifty_data_2003.csv'
 IST = pytz.timezone('Asia/Kolkata')
-FAST_EMA_PERIOD = 7
-SLOW_EMA_PERIOD = 14
+FAST_EMA_PERIOD = 14
+SLOW_EMA_PERIOD = 35
 TREND_SMA_PERIOD = 100
 MAX_RETRIES = 3
 RETRY_DELAY = 5
@@ -397,7 +397,7 @@ def update_csv(df, csv_file):
 
 def calculate_indicators(df):
     """
-    Calculate EMA7, EMA14, SMA100 indicators with validation.
+    Calculate EMA14, EMA35, SMA100 indicators with validation.
     """
     if len(df) < TREND_SMA_PERIOD:
         logging.warning(f"Not enough data for SMA{TREND_SMA_PERIOD} calculation ({len(df)} rows)")
