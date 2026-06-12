@@ -48,6 +48,11 @@ SIGNAL_STATE_FILE = 'data/signal_state.json'
 BOT_RUN_MODE = os.getenv('BOT_RUN_MODE', 'single').strip().lower()
 PORT = int(os.getenv('PORT', '8080'))
 
+# Diff message configuration
+SEND_DIFF = True
+DIFF_PRECISION = 2
+DIFF_AS_PERCENT = True
+
 
 def load_sensitive_config():
     telegram_bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
@@ -516,6 +521,52 @@ def get_signal_emoji(signal):
     return SIGNAL_EMOJIS.get(signal, '📊')
 
 
+def format_close_diff(current_close, prev_close, precision=DIFF_PRECISION, percent=DIFF_AS_PERCENT):
+    """
+    Return a formatted string showing absolute and optional percent difference
+    between `current_close` and `prev_close`. If prev_close is missing or zero,
+    return 'N/A'. Rounds to `precision` decimals.
+    Examples: '+12.34 (+1.23%)', '-5.00 (-0.50%)', 'N/A'
+    """
+    try:
+        if prev_close is None:
+            return 'N/A'
+
+        # Protect against division by zero
+        if prev_close == 0:
+            return 'N/A'
+
+        diff = float(current_close) - float(prev_close)
+        sign = '+' if diff > 0 else ('-' if diff < 0 else '')
+        abs_diff = round(abs(diff), precision)
+
+        if percent:
+            diff_pct = (diff / float(prev_close)) * 100
+            abs_pct = round(abs(diff_pct), precision)
+            return f"{sign}{abs_diff:.{precision}f} ({sign}{abs_pct:.{precision}f}%)"
+
+        return f"{sign}{abs_diff:.{precision}f}"
+    except Exception:
+        return 'N/A'
+
+
+def _smoke_test_format_close_diff():
+    """Basic smoke tests for the diff formatter. Logs results instead of raising.
+    Call this manually to verify formatting quickly.
+    """
+    tests = [
+        (110, 100, '+10.00 (+10.00%)'),
+        (95, 100, '-5.00 (-5.00%)'),
+        (100, 100, '0.00 (0.00%)'),
+        (100, 0, 'N/A'),
+        (100, None, 'N/A'),
+    ]
+
+    for cur, prev, expected in tests:
+        out = format_close_diff(cur, prev)
+        logging.info(f"format_close_diff({cur}, {prev}) -> {out} (expected: {expected})")
+
+
 def send_candle_update(df):
     """
     Send details of the last completed candle.
@@ -528,6 +579,14 @@ def send_candle_update(df):
         latest_completed_candle = df.iloc[-2]  # Second-to-last row
         candle_time = df.index[-2]  # Corresponding timestamp
 
+        # Attempt to get previous closed candle for diff calculation
+        prev_close = None
+        if len(df) >= 3:
+            try:
+                prev_close = df.iloc[-3]['Close']
+            except Exception:
+                prev_close = None
+
         if isinstance(candle_time, pd.Timestamp):
             if candle_time.tzinfo is None:
                 candle_time = candle_time.tz_localize(IST)
@@ -537,8 +596,13 @@ def send_candle_update(df):
         message = (
             f"🕯️ NIFTY Candle Update\n"
             f"📌 Last Completed Candle Close: {latest_completed_candle['Close']:.2f}\n"
-            f"📌 Candle Start Time: {candle_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
         )
+
+        if SEND_DIFF:
+            diff_str = format_close_diff(latest_completed_candle['Close'], prev_close)
+            message += f"📈 Change vs prev close: {diff_str}\n"
+
+        message += f"📌 Candle Start Time: {candle_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
         send_telegram_alert(message)
     except Exception as e:
         logging.error(f"Error sending candle update: {e}")
